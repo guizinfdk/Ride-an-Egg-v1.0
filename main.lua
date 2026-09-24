@@ -753,4 +753,165 @@ local function buscarEgg()
     end
     if humanoid and humanoid.Parent then
         humanoid.WalkSpeed = old.WalkSpeed
-        humanoid.JumpPower = old.J
+        humanoid.JumpPower = old.JumpPower
+        humanoid.JumpHeight = old.JumpHeight
+        humanoid.UseJumpPower = old.UseJumpPower
+        humanoid.PlatformStand = old.PlatformStand
+    end
+    Workspace.Gravity = old.Gravity
+
+    setStatus(COR_STATUS_OK, "Feito!")
+    SearchButton.Text = "✅ Feito!"
+    SearchButton.BackgroundColor3 = Color3.fromRGB(80, 180, 100)
+    task.wait(1)
+    SearchButton.Text = "Buscar Egg"
+    SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+    setStatus(COR_STATUS_OK, "Pronto")
+end
+
+SearchButton.MouseButton1Click:Connect(buscarEgg)
+
+SearchButton.MouseButton1Down:Connect(function()
+    TweenService:Create(searchScale, TweenInfo.new(0.08), { Scale = 0.97 }):Play()
+end)
+SearchButton.MouseButton1Up:Connect(function()
+    TweenService:Create(searchScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+end)
+SearchButton.MouseEnter:Connect(function()
+    TweenService:Create(SearchButton, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(80, 150, 240)
+    }):Play()
+end)
+SearchButton.MouseLeave:Connect(function()
+    TweenService:Create(searchScale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+    TweenService:Create(SearchButton, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+    }):Play()
+end)
+
+local function fecharComAnimacao()
+    TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+    }):Play()
+    TweenService:Create(BorderWrapper, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+    }):Play()
+    task.wait(0.26)
+    flying = false
+    ScreenGui:Destroy()
+end
+
+local MIN_W = PANEL_W
+local MIN_H = HEADER_H
+
+local function toggleMinimizar()
+    minimizado = not minimizado
+    if minimizado then
+        local mainPos = MainFrame.Position
+        local wrapPos = BorderWrapper.Position
+        TweenService:Create(ContentFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            Position = UDim2.new(0, 0, 0, HEADER_H),
+            BackgroundTransparency = 1,
+        }):Play()
+        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            Size = UDim2.new(0, MIN_W, 0, MIN_H),
+        }):Play()
+        TweenService:Create(BorderWrapper, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            Size = UDim2.new(0, MIN_W + 4, 0, MIN_H + 4),
+        }):Play()
+        MinimizeButton.Text = "+"
+    else
+        TweenService:Create(ContentFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            Position = UDim2.new(0, 0, 0, HEADER_H),
+            BackgroundTransparency = 1,
+        }):Play()
+        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            Size = UDim2.new(0, PANEL_W, 0, PANEL_H),
+        }):Play()
+        TweenService:Create(BorderWrapper, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            Size = UDim2.new(0, PANEL_W + 4, 0, PANEL_H + 4),
+        }):Play()
+        MinimizeButton.Text = "–"
+    end
+end
+
+MinimizeButton.MouseButton1Click:Connect(toggleMinimizar)
+MinimizeButton.MouseEnter:Connect(function()
+    TweenService:Create(MinimizeButton, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(80, 150, 240)
+    }):Play()
+end)
+MinimizeButton.MouseLeave:Connect(function()
+    TweenService:Create(MinimizeButton, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+    }):Play()
+end)
+
+CloseButtonTop.MouseButton1Click:Connect(fecharComAnimacao)
+CloseButtonBottom.MouseButton1Click:Connect(fecharComAnimacao)
+
+CloseButtonTop.MouseButton1Down:Connect(function()
+    TweenService:Create(CloseButtonTop, TweenInfo.new(0.08), { Size = UDim2.new(0, 13, 0, 13) }):Play()
+end)
+CloseButtonTop.MouseButton1Up:Connect(function()
+    TweenService:Create(CloseButtonTop, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.new(0, 14, 0, 14) }):Play()
+end)
+
+CloseButtonBottom.MouseButton1Down:Connect(function()
+    TweenService:Create(closeScale, TweenInfo.new(0.08), { Scale = 0.97 }):Play()
+end)
+CloseButtonBottom.MouseButton1Up:Connect(function()
+    TweenService:Create(closeScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+end)
+CloseButtonBottom.MouseEnter:Connect(function()
+    TweenService:Create(CloseButtonBottom, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(220, 70, 70)
+    }):Play()
+end)
+CloseButtonBottom.MouseLeave:Connect(function()
+    TweenService:Create(closeScale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+    TweenService:Create(CloseButtonBottom, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(180, 55, 55)
+    }):Play()
+end)
+
+local dragging = false
+local dragStart, startPos, wrapperStartPos
+
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+       or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        wrapperStartPos = BorderWrapper.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+                     or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+        BorderWrapper.Position = UDim2.new(
+            wrapperStartPos.X.Scale, wrapperStartPos.X.Offset + delta.X,
+            wrapperStartPos.Y.Scale, wrapperStartPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+criarBotoesTier()
+atualizarSelecaoTier()
+popularLista()
+observarPasta()
+setStatus(COR_STATUS_OK, "Pronto")
