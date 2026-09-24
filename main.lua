@@ -13,8 +13,9 @@ local rootPart = character:WaitForChild("HumanoidRootPart")
 local CONFIG = {
     FolderName = "RenderedEggs",
     FlySpeed = 250,
-    ArriveDistance = 6,
+    ArriveDistance = 4,
     PromptHoldTime = 0.5,
+    PromptSearchRadius = 30,
 }
 
 local RANKING = {
@@ -726,9 +727,57 @@ local function voarParaPosicao(destinoPos, distanciaParada)
     repeat task.wait(0.03) until not conn.Connected
 end
 
-local function acionarPrompt(model)
-    local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
-    if not prompt then return false end
+local function acharPromptMaisProximo(posicao, raioMax)
+    local maisProximo = nil
+    local menorDist = raioMax or math.huge
+
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("ProximityPrompt") and obj.Enabled then
+            local base = obj.Parent
+            if base then
+                local pos = nil
+                if base:IsA("BasePart") then
+                    pos = base.Position
+                elseif base:IsA("Attachment") then
+                    pos = base.WorldPosition
+                end
+
+                if pos then
+                    local dist = (pos - posicao).Magnitude
+                    if dist < menorDist then
+                        menorDist = dist
+                        maisProximo = obj
+                    end
+                end
+            end
+        end
+    end
+
+    return maisProximo, menorDist
+end
+
+local function acionarPrompt(model, posicaoChegada)
+    local prompt = nil
+
+    if model then
+        prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
+    end
+
+    if not prompt and posicaoChegada then
+        local encontrado, dist = acharPromptMaisProximo(posicaoChegada, CONFIG.PromptSearchRadius)
+        if encontrado then
+            prompt = encontrado
+            print("[Egg Finder] Prompt encontrado fora do model. Dist: " .. math.floor(dist))
+        end
+    end
+
+    if not prompt then
+        print("[Egg Finder] Nenhum ProximityPrompt encontrado.")
+        return false
+    end
+
+    print("[Egg Finder] Acionando: " .. tostring(prompt.ActionText))
+
     local ok = pcall(function() fireproximityprompt(prompt) end)
     if not ok then
         pcall(function()
@@ -818,7 +867,18 @@ local function buscarEgg()
 
     setStatus(COR_STATUS_WORK, "Interagindo...")
     SearchButton.Text = "✋ Interagindo..."
-    acionarPrompt(selectedEgg)
+    acionarPrompt(selectedEgg, eggPos)
+
+    if cancelarVoo then
+        restaurarEstado()
+        CancelButton.Visible = false
+        SearchButton.Text = "Buscar Egg"
+        SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+        setStatus(COR_STATUS_ERR, "Cancelado")
+        task.wait(1)
+        setStatus(COR_STATUS_OK, "Pronto")
+        return
+    end
 
     setStatus(COR_STATUS_WORK, "Voltando...")
     SearchButton.Text = "🛬 Voltando..."
