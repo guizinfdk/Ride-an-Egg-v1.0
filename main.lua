@@ -62,8 +62,9 @@ if not ScreenGui.Parent then
     ScreenGui.Parent = player:WaitForChild("PlayerGui")
 end
 
-local PANEL_W = 165
-local PANEL_H = 270
+local PANEL_W = 140
+local PANEL_H = 235
+local HEADER_H = 28
 
 local BorderWrapper = Instance.new("Frame")
 BorderWrapper.Name = "BorderWrapper"
@@ -102,13 +103,14 @@ MainFrame.Position = UDim2.new(0.5, -PANEL_W/2, 0.5, -PANEL_H/2)
 MainFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
+MainFrame.ClipsDescendants = true
 MainFrame.ZIndex = 2
 MainFrame.Parent = ScreenGui
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 7)
 
 local TitleBar = Instance.new("Frame")
 TitleBar.Name = "TitleBar"
-TitleBar.Size = UDim2.new(1, 0, 0, 30)
+TitleBar.Size = UDim2.new(1, 0, 0, HEADER_H)
 TitleBar.BackgroundColor3 = Color3.fromRGB(32, 32, 40)
 TitleBar.BorderSizePixel = 0
 TitleBar.ZIndex = 3
@@ -140,8 +142,8 @@ topLineGrad.Transparency = NumberSequence.new({
 topLineGrad.Parent = TopLine
 
 local HeaderLED = Instance.new("Frame")
-HeaderLED.Size = UDim2.new(0, 6, 0, 6)
-HeaderLED.Position = UDim2.new(0, 7, 0, 6)
+HeaderLED.Size = UDim2.new(0, 5, 0, 5)
+HeaderLED.Position = UDim2.new(0, 6, 0, 6)
 HeaderLED.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
 HeaderLED.BorderSizePixel = 0
 HeaderLED.ZIndex = 4
@@ -152,68 +154,92 @@ task.spawn(function()
     while HeaderLED.Parent do
         local t1 = TweenService:Create(HeaderLED, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
             BackgroundTransparency = 0.6,
-            Size = UDim2.new(0, 4, 0, 4),
-            Position = UDim2.new(0, 8, 0, 7),
+            Size = UDim2.new(0, 3, 0, 3),
+            Position = UDim2.new(0, 7, 0, 7),
         })
         t1:Play(); t1.Completed:Wait()
         if not HeaderLED.Parent then break end
         local t2 = TweenService:Create(HeaderLED, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
             BackgroundTransparency = 0,
-            Size = UDim2.new(0, 6, 0, 6),
-            Position = UDim2.new(0, 7, 0, 6),
+            Size = UDim2.new(0, 5, 0, 5),
+            Position = UDim2.new(0, 6, 0, 6),
         })
         t2:Play(); t2.Completed:Wait()
     end
 end)
 
 local TitleText = Instance.new("TextLabel")
-TitleText.Size = UDim2.new(1, -60, 0, 13)
-TitleText.Position = UDim2.new(0, 18, 0, 3)
+TitleText.Size = UDim2.new(1, -60, 0, 12)
+TitleText.Position = UDim2.new(0, 16, 0, 2)
 TitleText.BackgroundTransparency = 1
 TitleText.Text = "PL HUB"
 TitleText.TextColor3 = Color3.fromRGB(230, 240, 255)
 TitleText.Font = Enum.Font.GothamBold
-TitleText.TextSize = 11
+TitleText.TextSize = 10
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
 TitleText.ZIndex = 4
 TitleText.Parent = TitleBar
 
 local SubtitleText = Instance.new("TextLabel")
-SubtitleText.Size = UDim2.new(1, -60, 0, 10)
-SubtitleText.Position = UDim2.new(0, 18, 0, 16)
+SubtitleText.Size = UDim2.new(1, -60, 0, 9)
+SubtitleText.Position = UDim2.new(0, 16, 0, 15)
 SubtitleText.BackgroundTransparency = 1
 SubtitleText.Text = "Ride An Egg v1.0"
 SubtitleText.TextColor3 = Color3.fromRGB(110, 160, 220)
 SubtitleText.Font = Enum.Font.Gotham
-SubtitleText.TextSize = 7
+SubtitleText.TextSize = 6
 SubtitleText.TextXAlignment = Enum.TextXAlignment.Left
 SubtitleText.ZIndex = 4
 SubtitleText.Parent = TitleBar
 
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Size = UDim2.new(0, 14, 0, 14)
+MinimizeButton.Position = UDim2.new(1, -36, 0, 7)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+MinimizeButton.Text = "–"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.TextSize = 12
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.AutoButtonColor = false
+MinimizeButton.ZIndex = 4
+MinimizeButton.Parent = TitleBar
+Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(0, 3)
+
 local CloseButtonTop = Instance.new("TextButton")
-CloseButtonTop.Size = UDim2.new(0, 16, 0, 16)
-CloseButtonTop.Position = UDim2.new(1, -20, 0, 7)
+CloseButtonTop.Size = UDim2.new(0, 14, 0, 14)
+CloseButtonTop.Position = UDim2.new(1, -19, 0, 7)
 CloseButtonTop.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
 CloseButtonTop.Text = "✕"
 CloseButtonTop.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseButtonTop.Font = Enum.Font.GothamBold
 CloseButtonTop.TextSize = 9
 CloseButtonTop.BorderSizePixel = 0
+CloseButtonTop.AutoButtonColor = false
 CloseButtonTop.ZIndex = 4
 CloseButtonTop.Parent = TitleBar
-Instance.new("UICorner", CloseButtonTop).CornerRadius = UDim.new(0, 4)
+Instance.new("UICorner", CloseButtonTop).CornerRadius = UDim.new(0, 3)
+
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Name = "ContentFrame"
+ContentFrame.Size = UDim2.new(1, 0, 1, -HEADER_H)
+ContentFrame.Position = UDim2.new(0, 0, 0, HEADER_H)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.ClipsDescendants = true
+ContentFrame.ZIndex = 3
+ContentFrame.Parent = MainFrame
 
 local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, -10, 0, 136)
-ScrollFrame.Position = UDim2.new(0, 5, 0, 34)
+ScrollFrame.Size = UDim2.new(1, -8, 0, 108)
+ScrollFrame.Position = UDim2.new(0, 4, 0, 4)
 ScrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
 ScrollFrame.BorderSizePixel = 0
-ScrollFrame.ScrollBarThickness = 4
+ScrollFrame.ScrollBarThickness = 3
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 130, 200)
 ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 ScrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 ScrollFrame.ZIndex = 3
-ScrollFrame.Parent = MainFrame
+ScrollFrame.Parent = ContentFrame
 Instance.new("UICorner", ScrollFrame).CornerRadius = UDim.new(0, 4)
 
 local scrollStroke = Instance.new("UIStroke")
@@ -223,10 +249,10 @@ scrollStroke.Transparency = 0.5
 scrollStroke.Parent = ScrollFrame
 
 local ScrollPadding = Instance.new("UIPadding")
-ScrollPadding.PaddingTop = UDim.new(0, 3)
-ScrollPadding.PaddingBottom = UDim.new(0, 3)
-ScrollPadding.PaddingLeft = UDim.new(0, 3)
-ScrollPadding.PaddingRight = UDim.new(0, 3)
+ScrollPadding.PaddingTop = UDim.new(0, 2)
+ScrollPadding.PaddingBottom = UDim.new(0, 2)
+ScrollPadding.PaddingLeft = UDim.new(0, 2)
+ScrollPadding.PaddingRight = UDim.new(0, 2)
 ScrollPadding.Parent = ScrollFrame
 
 local ScrollLayout = Instance.new("UIListLayout")
@@ -235,8 +261,8 @@ ScrollLayout.Padding = UDim.new(0, 2)
 ScrollLayout.Parent = ScrollFrame
 
 local TierScroll = Instance.new("ScrollingFrame")
-TierScroll.Size = UDim2.new(1, -10, 0, 18)
-TierScroll.Position = UDim2.new(0, 5, 0, 174)
+TierScroll.Size = UDim2.new(1, -8, 0, 16)
+TierScroll.Position = UDim2.new(0, 4, 0, 116)
 TierScroll.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
 TierScroll.BorderSizePixel = 0
 TierScroll.ScrollBarThickness = 2
@@ -245,8 +271,8 @@ TierScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 TierScroll.AutomaticCanvasSize = Enum.AutomaticSize.X
 TierScroll.ScrollingDirection = Enum.ScrollingDirection.X
 TierScroll.ZIndex = 3
-TierScroll.Parent = MainFrame
-Instance.new("UICorner", TierScroll).CornerRadius = UDim.new(0, 4)
+TierScroll.Parent = ContentFrame
+Instance.new("UICorner", TierScroll).CornerRadius = UDim.new(0, 3)
 
 local TierLayout = Instance.new("UIListLayout")
 TierLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -261,34 +287,34 @@ TierPad.PaddingTop = UDim.new(0, 2)
 TierPad.Parent = TierScroll
 
 local SearchButton = Instance.new("TextButton")
-SearchButton.Size = UDim2.new(1, -10, 0, 22)
-SearchButton.Position = UDim2.new(0, 5, 0, 196)
+SearchButton.Size = UDim2.new(1, -8, 0, 20)
+SearchButton.Position = UDim2.new(0, 4, 0, 136)
 SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
 SearchButton.Text = "Buscar Egg"
 SearchButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 SearchButton.Font = Enum.Font.GothamBold
-SearchButton.TextSize = 10
+SearchButton.TextSize = 9
 SearchButton.BorderSizePixel = 0
 SearchButton.AutoButtonColor = false
 SearchButton.ZIndex = 3
-SearchButton.Parent = MainFrame
+SearchButton.Parent = ContentFrame
 Instance.new("UICorner", SearchButton).CornerRadius = UDim.new(0, 4)
 
 local searchScale = Instance.new("UIScale")
 searchScale.Parent = SearchButton
 
 local StatusRow = Instance.new("Frame")
-StatusRow.Size = UDim2.new(1, -10, 0, 14)
-StatusRow.Position = UDim2.new(0, 5, 0, 222)
+StatusRow.Size = UDim2.new(1, -8, 0, 13)
+StatusRow.Position = UDim2.new(0, 4, 0, 160)
 StatusRow.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
 StatusRow.BorderSizePixel = 0
 StatusRow.ZIndex = 3
-StatusRow.Parent = MainFrame
+StatusRow.Parent = ContentFrame
 Instance.new("UICorner", StatusRow).CornerRadius = UDim.new(0, 3)
 
 local StatusLED = Instance.new("Frame")
-StatusLED.Size = UDim2.new(0, 6, 0, 6)
-StatusLED.Position = UDim2.new(0, 5, 0.5, -3)
+StatusLED.Size = UDim2.new(0, 5, 0, 5)
+StatusLED.Position = UDim2.new(0, 5, 0.5, -2.5)
 StatusLED.BackgroundColor3 = Color3.fromRGB(80, 220, 100)
 StatusLED.BorderSizePixel = 0
 StatusLED.ZIndex = 4
@@ -296,29 +322,29 @@ StatusLED.Parent = StatusRow
 Instance.new("UICorner", StatusLED).CornerRadius = UDim.new(1, 0)
 
 local StatusText = Instance.new("TextLabel")
-StatusText.Size = UDim2.new(1, -20, 1, 0)
-StatusText.Position = UDim2.new(0, 16, 0, 0)
+StatusText.Size = UDim2.new(1, -18, 1, 0)
+StatusText.Position = UDim2.new(0, 15, 0, 0)
 StatusText.BackgroundTransparency = 1
 StatusText.Text = "Pronto"
 StatusText.TextColor3 = Color3.fromRGB(120, 220, 150)
 StatusText.Font = Enum.Font.GothamBold
-StatusText.TextSize = 8
+StatusText.TextSize = 7
 StatusText.TextXAlignment = Enum.TextXAlignment.Left
 StatusText.ZIndex = 4
 StatusText.Parent = StatusRow
 
 local CloseButtonBottom = Instance.new("TextButton")
-CloseButtonBottom.Size = UDim2.new(1, -10, 0, 20)
-CloseButtonBottom.Position = UDim2.new(0, 5, 0, 240)
+CloseButtonBottom.Size = UDim2.new(1, -8, 0, 18)
+CloseButtonBottom.Position = UDim2.new(0, 4, 0, 177)
 CloseButtonBottom.BackgroundColor3 = Color3.fromRGB(180, 55, 55)
 CloseButtonBottom.Text = "Fechar"
 CloseButtonBottom.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseButtonBottom.Font = Enum.Font.GothamBold
-CloseButtonBottom.TextSize = 10
+CloseButtonBottom.TextSize = 9
 CloseButtonBottom.BorderSizePixel = 0
 CloseButtonBottom.AutoButtonColor = false
 CloseButtonBottom.ZIndex = 3
-CloseButtonBottom.Parent = MainFrame
+CloseButtonBottom.Parent = ContentFrame
 Instance.new("UICorner", CloseButtonBottom).CornerRadius = UDim.new(0, 4)
 
 local closeScale = Instance.new("UIScale")
@@ -329,6 +355,7 @@ local eggButtons = {}
 local flying = false
 local filtroAtivo = nil
 local tierButtons = {}
+local minimizado = false
 
 local COR_NORMAL = Color3.fromRGB(46, 46, 58)
 local COR_SELECIONADO = Color3.fromRGB(60, 180, 90)
@@ -342,19 +369,19 @@ local function setStatus(cor, texto)
     StatusLED.BackgroundColor3 = cor
     StatusText.TextColor3 = cor
     StatusText.Text = texto
-    StatusLED.Size = UDim2.new(0, 6, 0, 6)
-    StatusLED.Position = UDim2.new(0, 5, 0.5, -3)
+    StatusLED.Size = UDim2.new(0, 5, 0, 5)
+    StatusLED.Position = UDim2.new(0, 5, 0.5, -2.5)
     task.spawn(function()
         if not StatusLED.Parent then return end
         local t1 = TweenService:Create(StatusLED, TweenInfo.new(0.12), {
-            Size = UDim2.new(0, 10, 0, 10),
-            Position = UDim2.new(0, 3, 0.5, -5),
+            Size = UDim2.new(0, 9, 0, 9),
+            Position = UDim2.new(0, 3, 0.5, -4.5),
         })
         t1:Play(); t1.Completed:Wait()
         if not StatusLED.Parent then return end
         local t2 = TweenService:Create(StatusLED, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 6, 0, 6),
-            Position = UDim2.new(0, 5, 0.5, -3),
+            Size = UDim2.new(0, 5, 0, 5),
+            Position = UDim2.new(0, 5, 0.5, -2.5),
         })
         t2:Play()
     end)
@@ -399,12 +426,12 @@ end
 
 local function criarBotoesTier()
     local btnTodos = Instance.new("TextButton")
-    btnTodos.Size = UDim2.new(0, 28, 0, 14)
+    btnTodos.Size = UDim2.new(0, 26, 0, 12)
     btnTodos.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
     btnTodos.Text = "Todos"
     btnTodos.TextColor3 = Color3.fromRGB(255, 255, 255)
     btnTodos.Font = Enum.Font.GothamBold
-    btnTodos.TextSize = 8
+    btnTodos.TextSize = 7
     btnTodos.BorderSizePixel = 0
     btnTodos.AutoButtonColor = false
     btnTodos.LayoutOrder = 0
@@ -421,12 +448,12 @@ local function criarBotoesTier()
 
     for i, rankInfo in ipairs(RANKING) do
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, 26, 0, 14)
+        btn.Size = UDim2.new(0, 24, 0, 12)
         btn.BackgroundColor3 = COR_TIER_OFF
         btn.Text = rankInfo.atalho
         btn.TextColor3 = rankInfo.cor
         btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 8
+        btn.TextSize = 7
         btn.BorderSizePixel = 0
         btn.AutoButtonColor = false
         btn.LayoutOrder = i
@@ -459,7 +486,7 @@ local function criarBotaoEgg(model, order, rankData)
     local corRaridade = rankData and rankData.cor or Color3.fromRGB(150, 150, 150)
 
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 18)
+    btn.Size = UDim2.new(1, 0, 0, 16)
     btn.BackgroundColor3 = COR_NORMAL
     btn.Text = ""
     btn.AutoButtonColor = false
@@ -490,7 +517,7 @@ local function criarBotaoEgg(model, order, rankData)
     label.Text = nomeModel
     label.TextColor3 = corRaridade
     label.Font = Enum.Font.GothamSemibold
-    label.TextSize = 9
+    label.TextSize = 8
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.TextTruncate = Enum.TextTruncate.AtEnd
     label.Parent = btn
@@ -502,7 +529,7 @@ local function criarBotaoEgg(model, order, rankData)
     arrow.Text = "›"
     arrow.TextColor3 = corRaridade
     arrow.Font = Enum.Font.GothamBold
-    arrow.TextSize = 13
+    arrow.TextSize = 12
     arrow.TextTransparency = 1
     arrow.Parent = btn
 
@@ -540,12 +567,12 @@ function popularLista()
     local pasta = Workspace:FindFirstChild(CONFIG.FolderName)
     if not pasta then
         local aviso = Instance.new("TextLabel")
-        aviso.Size = UDim2.new(1, 0, 0, 20)
+        aviso.Size = UDim2.new(1, 0, 0, 18)
         aviso.BackgroundTransparency = 1
         aviso.Text = "⚠ Pasta não encontrada"
         aviso.TextColor3 = Color3.fromRGB(220, 90, 90)
         aviso.Font = Enum.Font.Gotham
-        aviso.TextSize = 8
+        aviso.TextSize = 7
         aviso.TextWrapped = true
         aviso.Parent = ScrollFrame
         return
@@ -594,12 +621,12 @@ function popularLista()
 
     if #listaFiltrada == 0 then
         local aviso = Instance.new("TextLabel")
-        aviso.Size = UDim2.new(1, 0, 0, 20)
+        aviso.Size = UDim2.new(1, 0, 0, 18)
         aviso.BackgroundTransparency = 1
         aviso.Text = filtroAtivo and "Nenhum egg desse tier" or "Nenhum egg encontrado"
         aviso.TextColor3 = Color3.fromRGB(180, 180, 190)
         aviso.Font = Enum.Font.Gotham
-        aviso.TextSize = 8
+        aviso.TextSize = 7
         aviso.Parent = ScrollFrame
     end
 end
@@ -726,123 +753,4 @@ local function buscarEgg()
     end
     if humanoid and humanoid.Parent then
         humanoid.WalkSpeed = old.WalkSpeed
-        humanoid.JumpPower = old.JumpPower
-        humanoid.JumpHeight = old.JumpHeight
-        humanoid.UseJumpPower = old.UseJumpPower
-        humanoid.PlatformStand = old.PlatformStand
-    end
-    Workspace.Gravity = old.Gravity
-
-    setStatus(COR_STATUS_OK, "Feito!")
-    SearchButton.Text = "✅ Feito!"
-    SearchButton.BackgroundColor3 = Color3.fromRGB(80, 180, 100)
-    task.wait(1)
-    SearchButton.Text = "Buscar Egg"
-    SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
-    setStatus(COR_STATUS_OK, "Pronto")
-end
-
-SearchButton.MouseButton1Click:Connect(buscarEgg)
-
-SearchButton.MouseButton1Down:Connect(function()
-    TweenService:Create(searchScale, TweenInfo.new(0.08), { Scale = 0.97 }):Play()
-end)
-SearchButton.MouseButton1Up:Connect(function()
-    TweenService:Create(searchScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
-end)
-SearchButton.MouseEnter:Connect(function()
-    TweenService:Create(SearchButton, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(80, 150, 240)
-    }):Play()
-end)
-SearchButton.MouseLeave:Connect(function()
-    TweenService:Create(searchScale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
-    TweenService:Create(SearchButton, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(60, 130, 220)
-    }):Play()
-end)
-
-local function fecharMenu()
-    flying = false
-    ScreenGui:Destroy()
-end
-
-local function fecharComAnimacao()
-    TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        Size = UDim2.new(0, 0, 0, 0),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-    }):Play()
-    TweenService:Create(BorderWrapper, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        Size = UDim2.new(0, 0, 0, 0),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-    }):Play()
-    task.wait(0.26)
-    fecharMenu()
-end
-
-CloseButtonTop.MouseButton1Click:Connect(fecharComAnimacao)
-CloseButtonBottom.MouseButton1Click:Connect(fecharComAnimacao)
-
-CloseButtonTop.MouseButton1Down:Connect(function()
-    TweenService:Create(CloseButtonTop, TweenInfo.new(0.08), { Size = UDim2.new(0, 15, 0, 15) }):Play()
-end)
-CloseButtonTop.MouseButton1Up:Connect(function()
-    TweenService:Create(CloseButtonTop, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.new(0, 16, 0, 16) }):Play()
-end)
-
-CloseButtonBottom.MouseButton1Down:Connect(function()
-    TweenService:Create(closeScale, TweenInfo.new(0.08), { Scale = 0.97 }):Play()
-end)
-CloseButtonBottom.MouseButton1Up:Connect(function()
-    TweenService:Create(closeScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
-end)
-CloseButtonBottom.MouseEnter:Connect(function()
-    TweenService:Create(CloseButtonBottom, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(220, 70, 70)
-    }):Play()
-end)
-CloseButtonBottom.MouseLeave:Connect(function()
-    TweenService:Create(closeScale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
-    TweenService:Create(CloseButtonBottom, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(180, 55, 55)
-    }):Play()
-end)
-
-local dragging = false
-local dragStart, startPos, wrapperStartPos
-
-TitleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-       or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-        wrapperStartPos = BorderWrapper.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
-                     or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
-        BorderWrapper.Position = UDim2.new(
-            wrapperStartPos.X.Scale, wrapperStartPos.X.Offset + delta.X,
-            wrapperStartPos.Y.Scale, wrapperStartPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
-criarBotoesTier()
-atualizarSelecaoTier()
-popularLista()
-observarPasta()
-setStatus(COR_STATUS_OK, "Pronto")
+        humanoid.JumpPower = old.J
