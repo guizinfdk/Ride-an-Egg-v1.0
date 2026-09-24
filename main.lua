@@ -12,7 +12,7 @@ local rootPart = character:WaitForChild("HumanoidRootPart")
 
 local CONFIG = {
     FolderName = "RenderedEggs",
-    FlySpeed = 120,
+    FlySpeed = 250,
     ArriveDistance = 6,
     PromptHoldTime = 0.5,
 }
@@ -230,7 +230,7 @@ ContentFrame.ZIndex = 3
 ContentFrame.Parent = MainFrame
 
 local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, -8, 0, 108)
+ScrollFrame.Size = UDim2.new(1, -8, 0, 92)
 ScrollFrame.Position = UDim2.new(0, 4, 0, 4)
 ScrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
 ScrollFrame.BorderSizePixel = 0
@@ -262,7 +262,7 @@ ScrollLayout.Parent = ScrollFrame
 
 local TierScroll = Instance.new("ScrollingFrame")
 TierScroll.Size = UDim2.new(1, -8, 0, 16)
-TierScroll.Position = UDim2.new(0, 4, 0, 116)
+TierScroll.Position = UDim2.new(0, 4, 0, 100)
 TierScroll.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
 TierScroll.BorderSizePixel = 0
 TierScroll.ScrollBarThickness = 2
@@ -288,7 +288,7 @@ TierPad.Parent = TierScroll
 
 local SearchButton = Instance.new("TextButton")
 SearchButton.Size = UDim2.new(1, -8, 0, 20)
-SearchButton.Position = UDim2.new(0, 4, 0, 136)
+SearchButton.Position = UDim2.new(0, 4, 0, 120)
 SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
 SearchButton.Text = "Buscar Egg"
 SearchButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -303,9 +303,27 @@ Instance.new("UICorner", SearchButton).CornerRadius = UDim.new(0, 4)
 local searchScale = Instance.new("UIScale")
 searchScale.Parent = SearchButton
 
+local CancelButton = Instance.new("TextButton")
+CancelButton.Size = UDim2.new(1, -8, 0, 18)
+CancelButton.Position = UDim2.new(0, 4, 0, 144)
+CancelButton.BackgroundColor3 = Color3.fromRGB(200, 140, 40)
+CancelButton.Text = "Cancelar Voo"
+CancelButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CancelButton.Font = Enum.Font.GothamBold
+CancelButton.TextSize = 9
+CancelButton.BorderSizePixel = 0
+CancelButton.AutoButtonColor = false
+CancelButton.Visible = false
+CancelButton.ZIndex = 3
+CancelButton.Parent = ContentFrame
+Instance.new("UICorner", CancelButton).CornerRadius = UDim.new(0, 4)
+
+local cancelScale = Instance.new("UIScale")
+cancelScale.Parent = CancelButton
+
 local StatusRow = Instance.new("Frame")
 StatusRow.Size = UDim2.new(1, -8, 0, 13)
-StatusRow.Position = UDim2.new(0, 4, 0, 160)
+StatusRow.Position = UDim2.new(0, 4, 0, 168)
 StatusRow.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
 StatusRow.BorderSizePixel = 0
 StatusRow.ZIndex = 3
@@ -335,7 +353,7 @@ StatusText.Parent = StatusRow
 
 local CloseButtonBottom = Instance.new("TextButton")
 CloseButtonBottom.Size = UDim2.new(1, -8, 0, 18)
-CloseButtonBottom.Position = UDim2.new(0, 4, 0, 177)
+CloseButtonBottom.Position = UDim2.new(0, 4, 0, 185)
 CloseButtonBottom.BackgroundColor3 = Color3.fromRGB(180, 55, 55)
 CloseButtonBottom.Text = "Fechar"
 CloseButtonBottom.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -353,9 +371,13 @@ closeScale.Parent = CloseButtonBottom
 local selectedEgg = nil
 local eggButtons = {}
 local flying = false
+local cancelarVoo = false
 local filtroAtivo = nil
 local tierButtons = {}
 local minimizado = false
+local noclipping = false
+local noclipConn = nil
+local oldStateSalvo = nil
 
 local COR_NORMAL = Color3.fromRGB(46, 46, 58)
 local COR_SELECIONADO = Color3.fromRGB(60, 180, 90)
@@ -387,7 +409,7 @@ local function setStatus(cor, texto)
     end)
 end
 
-local function tactile(btn)
+local function tactical(btn)
     local scale = Instance.new("UIScale")
     scale.Parent = btn
     btn.MouseButton1Down:Connect(function()
@@ -399,6 +421,49 @@ local function tactile(btn)
     btn.MouseLeave:Connect(function()
         TweenService:Create(scale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
     end)
+end
+
+local function ligarNoclip()
+    if noclipping then return end
+    noclipping = true
+    noclipConn = RunService.Stepped:Connect(function()
+        if not character or not character.Parent then return end
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") and part.CanCollide then
+                part.CanCollide = false
+            end
+        end
+    end)
+end
+
+local function desligarNoclip()
+    if not noclipping then return end
+    noclipping = false
+    if noclipConn then
+        noclipConn:Disconnect()
+        noclipConn = nil
+    end
+end
+
+local function restaurarEstado()
+    if not oldStateSalvo then return end
+    local old = oldStateSalvo
+
+    if rootPart and rootPart.Parent then
+        rootPart.CFrame = old.StartPos
+        rootPart.Anchored = old.Anchored
+        rootPart.CanCollide = old.CanCollide
+    end
+    if humanoid and humanoid.Parent then
+        humanoid.WalkSpeed = old.WalkSpeed
+        humanoid.JumpPower = old.JumpPower
+        humanoid.JumpHeight = old.JumpHeight
+        humanoid.UseJumpPower = old.UseJumpPower
+        humanoid.PlatformStand = old.PlatformStand
+    end
+    Workspace.Gravity = old.Gravity
+    desligarNoclip()
+    oldStateSalvo = nil
 end
 
 local function atualizarSelecaoTier()
@@ -437,7 +502,7 @@ local function criarBotoesTier()
     btnTodos.LayoutOrder = 0
     btnTodos.Parent = TierScroll
     Instance.new("UICorner", btnTodos).CornerRadius = UDim.new(0, 3)
-    tactile(btnTodos)
+    tactical(btnTodos)
 
     btnTodos.MouseButton1Click:Connect(function()
         filtroAtivo = nil
@@ -466,7 +531,7 @@ local function criarBotoesTier()
         stroke.Transparency = 0.6
         stroke.Parent = btn
 
-        tactile(btn)
+        tactical(btn)
 
         btn.MouseButton1Click:Connect(function()
             if filtroAtivo == i then
@@ -546,7 +611,7 @@ local function criarBotaoEgg(model, order, rankData)
         }):Play()
     end)
 
-    tactile(btn)
+    tactical(btn)
 
     btn.MouseButton1Click:Connect(function()
         for _, otherBtn in pairs(eggButtons) do
@@ -641,9 +706,10 @@ end
 
 local function voarParaPosicao(destinoPos, distanciaParada)
     flying = true
+    cancelarVoo = false
     local conn
     conn = RunService.Heartbeat:Connect(function(dt)
-        if not flying or not rootPart or not rootPart.Parent then
+        if cancelarVoo or not flying or not rootPart or not rootPart.Parent then
             if conn then conn:Disconnect() end
             return
         end
@@ -696,6 +762,7 @@ local function buscarEgg()
     setStatus(COR_STATUS_WORK, "Voando...")
     SearchButton.Text = "🛫 Voando..."
     SearchButton.BackgroundColor3 = Color3.fromRGB(80, 180, 100)
+    CancelButton.Visible = true
 
     local eggPos
     if selectedEgg:IsA("Model") then
@@ -707,6 +774,7 @@ local function buscarEgg()
         setStatus(COR_STATUS_ERR, "Erro: sem posição")
         SearchButton.Text = "⚠ Sem posição!"
         SearchButton.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+        CancelButton.Visible = false
         task.wait(1)
         SearchButton.Text = "Buscar Egg"
         SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
@@ -714,7 +782,7 @@ local function buscarEgg()
         return
     end
 
-    local old = {
+    oldStateSalvo = {
         WalkSpeed = humanoid.WalkSpeed,
         JumpPower = humanoid.JumpPower,
         JumpHeight = humanoid.JumpHeight,
@@ -733,8 +801,20 @@ local function buscarEgg()
     Workspace.Gravity = 0
     rootPart.Anchored = false
     rootPart.CanCollide = false
+    ligarNoclip()
 
     voarParaPosicao(eggPos, CONFIG.ArriveDistance)
+
+    if cancelarVoo then
+        restaurarEstado()
+        CancelButton.Visible = false
+        SearchButton.Text = "Buscar Egg"
+        SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+        setStatus(COR_STATUS_ERR, "Cancelado")
+        task.wait(1)
+        setStatus(COR_STATUS_OK, "Pronto")
+        return
+    end
 
     setStatus(COR_STATUS_WORK, "Interagindo...")
     SearchButton.Text = "✋ Interagindo..."
@@ -742,23 +822,12 @@ local function buscarEgg()
 
     setStatus(COR_STATUS_WORK, "Voltando...")
     SearchButton.Text = "🛬 Voltando..."
-    voarParaPosicao(old.StartPos.Position, 3)
+    voarParaPosicao(oldStateSalvo.StartPos.Position, 3)
     flying = false
     task.wait(0.15)
 
-    if rootPart and rootPart.Parent then
-        rootPart.CFrame = old.StartPos
-        rootPart.Anchored = old.Anchored
-        rootPart.CanCollide = old.CanCollide
-    end
-    if humanoid and humanoid.Parent then
-        humanoid.WalkSpeed = old.WalkSpeed
-        humanoid.JumpPower = old.JumpPower
-        humanoid.JumpHeight = old.JumpHeight
-        humanoid.UseJumpPower = old.UseJumpPower
-        humanoid.PlatformStand = old.PlatformStand
-    end
-    Workspace.Gravity = old.Gravity
+    restaurarEstado()
+    CancelButton.Visible = false
 
     setStatus(COR_STATUS_OK, "Feito!")
     SearchButton.Text = "✅ Feito!"
@@ -769,7 +838,25 @@ local function buscarEgg()
     setStatus(COR_STATUS_OK, "Pronto")
 end
 
+local function cancelarVooAgora()
+    if not flying then return end
+    cancelarVoo = true
+    flying = false
+    setStatus(COR_STATUS_ERR, "Cancelando...")
+    CancelButton.Text = "Cancelando..."
+    task.wait(0.15)
+    restaurarEstado()
+    CancelButton.Visible = false
+    CancelButton.Text = "Cancelar Voo"
+    SearchButton.Text = "Buscar Egg"
+    SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+    setStatus(COR_STATUS_ERR, "Cancelado")
+    task.wait(0.8)
+    setStatus(COR_STATUS_OK, "Pronto")
+end
+
 SearchButton.MouseButton1Click:Connect(buscarEgg)
+CancelButton.MouseButton1Click:Connect(cancelarVooAgora)
 
 SearchButton.MouseButton1Down:Connect(function()
     TweenService:Create(searchScale, TweenInfo.new(0.08), { Scale = 0.97 }):Play()
@@ -789,7 +876,31 @@ SearchButton.MouseLeave:Connect(function()
     }):Play()
 end)
 
+CancelButton.MouseButton1Down:Connect(function()
+    TweenService:Create(cancelScale, TweenInfo.new(0.08), { Scale = 0.97 }):Play()
+end)
+CancelButton.MouseButton1Up:Connect(function()
+    TweenService:Create(cancelScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+end)
+CancelButton.MouseEnter:Connect(function()
+    TweenService:Create(CancelButton, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(230, 170, 60)
+    }):Play()
+end)
+CancelButton.MouseLeave:Connect(function()
+    TweenService:Create(cancelScale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+    TweenService:Create(CancelButton, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(200, 140, 40)
+    }):Play()
+end)
+
 local function fecharComAnimacao()
+    if flying then
+        cancelarVoo = true
+        flying = false
+        task.wait(0.1)
+        restaurarEstado()
+    end
     TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
         Size = UDim2.new(0, 0, 0, 0),
         Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -799,7 +910,6 @@ local function fecharComAnimacao()
         Position = UDim2.new(0.5, 0, 0.5, 0),
     }):Play()
     task.wait(0.26)
-    flying = false
     ScreenGui:Destroy()
 end
 
@@ -809,12 +919,6 @@ local MIN_H = HEADER_H
 local function toggleMinimizar()
     minimizado = not minimizado
     if minimizado then
-        local mainPos = MainFrame.Position
-        local wrapPos = BorderWrapper.Position
-        TweenService:Create(ContentFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-            Position = UDim2.new(0, 0, 0, HEADER_H),
-            BackgroundTransparency = 1,
-        }):Play()
         TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
             Size = UDim2.new(0, MIN_W, 0, MIN_H),
         }):Play()
@@ -823,10 +927,6 @@ local function toggleMinimizar()
         }):Play()
         MinimizeButton.Text = "+"
     else
-        TweenService:Create(ContentFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-            Position = UDim2.new(0, 0, 0, HEADER_H),
-            BackgroundTransparency = 1,
-        }):Play()
         TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
             Size = UDim2.new(0, PANEL_W, 0, PANEL_H),
         }):Play()
