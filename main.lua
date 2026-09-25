@@ -16,6 +16,7 @@ local CONFIG = {
     ArriveDistance = 4,
     PromptHoldTime = 0.5,
     PromptSearchRadius = 30,
+    AutoFarmDelay = 0.4,
 }
 
 local RANKING = {
@@ -63,8 +64,8 @@ if not ScreenGui.Parent then
     ScreenGui.Parent = player:WaitForChild("PlayerGui")
 end
 
-local PANEL_W = 140
-local PANEL_H = 235
+local PANEL_W = 145
+local PANEL_H = 245
 local HEADER_H = 28
 
 local BorderWrapper = Instance.new("Frame")
@@ -231,7 +232,7 @@ ContentFrame.ZIndex = 3
 ContentFrame.Parent = MainFrame
 
 local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, -8, 0, 92)
+ScrollFrame.Size = UDim2.new(1, -8, 0, 88)
 ScrollFrame.Position = UDim2.new(0, 4, 0, 4)
 ScrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
 ScrollFrame.BorderSizePixel = 0
@@ -263,7 +264,7 @@ ScrollLayout.Parent = ScrollFrame
 
 local TierScroll = Instance.new("ScrollingFrame")
 TierScroll.Size = UDim2.new(1, -8, 0, 16)
-TierScroll.Position = UDim2.new(0, 4, 0, 100)
+TierScroll.Position = UDim2.new(0, 4, 0, 96)
 TierScroll.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
 TierScroll.BorderSizePixel = 0
 TierScroll.ScrollBarThickness = 2
@@ -287,9 +288,57 @@ TierPad.PaddingRight = UDim.new(0, 2)
 TierPad.PaddingTop = UDim.new(0, 2)
 TierPad.Parent = TierScroll
 
+local AutoFarmCheck = Instance.new("TextButton")
+AutoFarmCheck.Size = UDim2.new(1, -8, 0, 14)
+AutoFarmCheck.Position = UDim2.new(0, 4, 0, 116)
+AutoFarmCheck.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+AutoFarmCheck.Text = ""
+AutoFarmCheck.AutoButtonColor = false
+AutoFarmCheck.BorderSizePixel = 0
+AutoFarmCheck.ZIndex = 3
+AutoFarmCheck.Parent = ContentFrame
+Instance.new("UICorner", AutoFarmCheck).CornerRadius = UDim.new(0, 3)
+
+local CheckBox = Instance.new("Frame")
+CheckBox.Size = UDim2.new(0, 10, 0, 10)
+CheckBox.Position = UDim2.new(0, 4, 0.5, -5)
+CheckBox.BackgroundColor3 = Color3.fromRGB(40, 40, 52)
+CheckBox.BorderSizePixel = 0
+CheckBox.ZIndex = 4
+CheckBox.Parent = AutoFarmCheck
+Instance.new("UICorner", CheckBox).CornerRadius = UDim.new(0, 2)
+
+local CheckStroke = Instance.new("UIStroke")
+CheckStroke.Color = Color3.fromRGB(80, 130, 200)
+CheckStroke.Thickness = 1
+CheckStroke.Parent = CheckBox
+
+local CheckMark = Instance.new("TextLabel")
+CheckMark.Size = UDim2.new(1, 0, 1, 0)
+CheckMark.BackgroundTransparency = 1
+CheckMark.Text = "✓"
+CheckMark.TextColor3 = Color3.fromRGB(255, 255, 255)
+CheckMark.Font = Enum.Font.GothamBold
+CheckMark.TextSize = 10
+CheckMark.TextTransparency = 1
+CheckMark.ZIndex = 5
+CheckMark.Parent = CheckBox
+
+local CheckLabel = Instance.new("TextLabel")
+CheckLabel.Size = UDim2.new(1, -20, 1, 0)
+CheckLabel.Position = UDim2.new(0, 20, 0, 0)
+CheckLabel.BackgroundTransparency = 1
+CheckLabel.Text = "Auto Farm"
+CheckLabel.TextColor3 = Color3.fromRGB(200, 200, 210)
+CheckLabel.Font = Enum.Font.GothamSemibold
+CheckLabel.TextSize = 8
+CheckLabel.TextXAlignment = Enum.TextXAlignment.Left
+CheckLabel.ZIndex = 4
+CheckLabel.Parent = AutoFarmCheck
+
 local SearchButton = Instance.new("TextButton")
 SearchButton.Size = UDim2.new(1, -8, 0, 20)
-SearchButton.Position = UDim2.new(0, 4, 0, 120)
+SearchButton.Position = UDim2.new(0, 4, 0, 134)
 SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
 SearchButton.Text = "Buscar Egg"
 SearchButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -306,7 +355,7 @@ searchScale.Parent = SearchButton
 
 local CancelButton = Instance.new("TextButton")
 CancelButton.Size = UDim2.new(1, -8, 0, 18)
-CancelButton.Position = UDim2.new(0, 4, 0, 144)
+CancelButton.Position = UDim2.new(0, 4, 0, 158)
 CancelButton.BackgroundColor3 = Color3.fromRGB(200, 140, 40)
 CancelButton.Text = "Cancelar Voo"
 CancelButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -324,7 +373,7 @@ cancelScale.Parent = CancelButton
 
 local StatusRow = Instance.new("Frame")
 StatusRow.Size = UDim2.new(1, -8, 0, 13)
-StatusRow.Position = UDim2.new(0, 4, 0, 168)
+StatusRow.Position = UDim2.new(0, 4, 0, 180)
 StatusRow.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
 StatusRow.BorderSizePixel = 0
 StatusRow.ZIndex = 3
@@ -349,12 +398,13 @@ StatusText.TextColor3 = Color3.fromRGB(120, 220, 150)
 StatusText.Font = Enum.Font.GothamBold
 StatusText.TextSize = 7
 StatusText.TextXAlignment = Enum.TextXAlignment.Left
+StatusText.TextTruncate = Enum.TextTruncate.AtEnd
 StatusText.ZIndex = 4
 StatusText.Parent = StatusRow
 
 local CloseButtonBottom = Instance.new("TextButton")
 CloseButtonBottom.Size = UDim2.new(1, -8, 0, 18)
-CloseButtonBottom.Position = UDim2.new(0, 4, 0, 185)
+CloseButtonBottom.Position = UDim2.new(0, 4, 0, 197)
 CloseButtonBottom.BackgroundColor3 = Color3.fromRGB(180, 55, 55)
 CloseButtonBottom.Text = "Fechar"
 CloseButtonBottom.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -379,6 +429,8 @@ local minimizado = false
 local noclipping = false
 local noclipConn = nil
 local oldStateSalvo = nil
+local autoFarmAtivo = false
+local autoFarmRodando = false
 
 local COR_NORMAL = Color3.fromRGB(46, 46, 58)
 local COR_SELECIONADO = Color3.fromRGB(60, 180, 90)
@@ -447,6 +499,7 @@ local function desligarNoclip()
 end
 
 local function restaurarEstado()
+    flying = false
     if not oldStateSalvo then return end
     local old = oldStateSalvo
 
@@ -490,6 +543,276 @@ local function atualizarSelecaoTier()
     end
 end
 
+local function voarParaPosicao(destinoPos, distanciaParada)
+    flying = true
+    cancelarVoo = false
+    local conn
+    conn = RunService.Heartbeat:Connect(function(dt)
+        if cancelarVoo or not flying or not rootPart or not rootPart.Parent then
+            if conn then conn:Disconnect() end
+            return
+        end
+        local atual = rootPart.Position
+        local direcao = destinoPos - atual
+        local dist = direcao.Magnitude
+        if dist <= distanciaParada then
+            conn:Disconnect()
+            return
+        end
+        local passo = direcao.Unit * math.min(CONFIG.FlySpeed * dt, dist)
+        rootPart.CFrame = CFrame.new(atual + passo)
+    end)
+    repeat task.wait(0.03) until not conn.Connected
+end
+
+local function acharPromptMaisProximo(posicao, raioMax)
+    local maisProximo = nil
+    local menorDist = raioMax or math.huge
+
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("ProximityPrompt") and obj.Enabled then
+            local base = obj.Parent
+            if base then
+                local pos = nil
+                if base:IsA("BasePart") then
+                    pos = base.Position
+                elseif base:IsA("Attachment") then
+                    pos = base.WorldPosition
+                end
+
+                if pos then
+                    local dist = (pos - posicao).Magnitude
+                    if dist < menorDist then
+                        menorDist = dist
+                        maisProximo = obj
+                    end
+                end
+            end
+        end
+    end
+
+    return maisProximo, menorDist
+end
+
+local function acionarPrompt(model, posicaoChegada)
+    local prompt = nil
+
+    if model then
+        prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
+    end
+
+    if not prompt and posicaoChegada then
+        local encontrado, dist = acharPromptMaisProximo(posicaoChegada, CONFIG.PromptSearchRadius)
+        if encontrado then
+            prompt = encontrado
+            print("[Egg Finder] Prompt encontrado fora do model. Dist: " .. math.floor(dist))
+        end
+    end
+
+    if not prompt then
+        print("[Egg Finder] Nenhum ProximityPrompt encontrado.")
+        return false
+    end
+
+    local ok = pcall(function() fireproximityprompt(prompt) end)
+    if not ok then
+        pcall(function()
+            prompt:InputHoldBegin()
+            task.wait(CONFIG.PromptHoldTime)
+            prompt:InputHoldEnd()
+        end)
+    end
+    task.wait(0.3)
+    return true
+end
+
+local function fazerViagem(egg)
+    if not egg or not egg.Parent then return false end
+
+    character = player.Character
+    if not character then return false end
+    humanoid = character:FindFirstChildOfClass("Humanoid")
+    rootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoid or not rootPart then return false end
+
+    local eggPos
+    if egg:IsA("Model") then
+        local primary = egg.PrimaryPart or egg:FindFirstChildWhichIsA("BasePart")
+        eggPos = primary and primary.Position or egg:GetPivot().Position
+    end
+    if not eggPos then return false end
+
+    oldStateSalvo = {
+        WalkSpeed = humanoid.WalkSpeed,
+        JumpPower = humanoid.JumpPower,
+        JumpHeight = humanoid.JumpHeight,
+        UseJumpPower = humanoid.UseJumpPower,
+        Anchored = rootPart.Anchored,
+        CanCollide = rootPart.CanCollide,
+        Gravity = Workspace.Gravity,
+        PlatformStand = humanoid.PlatformStand,
+        StartPos = rootPart.CFrame,
+    }
+
+    humanoid.PlatformStand = true
+    humanoid.WalkSpeed = 0
+    humanoid.JumpPower = 0
+    humanoid.JumpHeight = 0
+    Workspace.Gravity = 0
+    rootPart.Anchored = false
+    rootPart.CanCollide = false
+    ligarNoclip()
+
+    setStatus(COR_STATUS_WORK, "Voando...")
+    voarParaPosicao(eggPos, CONFIG.ArriveDistance)
+
+    if cancelarVoo then
+        restaurarEstado()
+        return false
+    end
+
+    setStatus(COR_STATUS_WORK, "Interagindo...")
+    acionarPrompt(egg, eggPos)
+
+    if cancelarVoo then
+        restaurarEstado()
+        return false
+    end
+
+    setStatus(COR_STATUS_WORK, "Voltando...")
+    voarParaPosicao(oldStateSalvo.StartPos.Position, 3)
+    flying = false
+    task.wait(0.15)
+
+    restaurarEstado()
+    return true
+end
+
+local function buscarEgg()
+    if flying or autoFarmRodando then return end
+
+    if not selectedEgg or not selectedEgg.Parent then
+        setStatus(COR_STATUS_ERR, "Selecione um egg!")
+        SearchButton.Text = "⚠ Selecione!"
+        SearchButton.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+        task.wait(1)
+        SearchButton.Text = "Buscar Egg"
+        SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+        setStatus(COR_STATUS_OK, "Pronto")
+        return
+    end
+
+    CancelButton.Visible = true
+    SearchButton.Text = "🛫 Voando..."
+    SearchButton.BackgroundColor3 = Color3.fromRGB(80, 180, 100)
+
+    local ok = fazerViagem(selectedEgg)
+
+    CancelButton.Visible = false
+    if not ok then
+        setStatus(COR_STATUS_ERR, "Cancelado")
+    else
+        setStatus(COR_STATUS_OK, "Feito!")
+    end
+
+    SearchButton.Text = "✅ Feito!"
+    SearchButton.BackgroundColor3 = Color3.fromRGB(80, 180, 100)
+    task.wait(1)
+    SearchButton.Text = "Buscar Egg"
+    SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+    if ok then
+        setStatus(COR_STATUS_OK, "Pronto")
+    else
+        task.wait(0.8)
+        setStatus(COR_STATUS_OK, "Pronto")
+    end
+end
+
+local function pegarEggsDoTier(tierIdx)
+    local pasta = Workspace:FindFirstChild(CONFIG.FolderName)
+    if not pasta then return {}, "Pasta não encontrada" end
+
+    local eggs = {}
+    for _, obj in ipairs(pasta:GetChildren()) do
+        if obj:IsA("Model") then
+            local rankData = rankPorNome[obj.Name]
+            if not rankData then
+                for nomeRank, dados in pairs(rankPorNome) do
+                    if string.find(obj.Name, nomeRank, 1, true) then
+                        rankData = dados
+                        break
+                    end
+                end
+            end
+            if rankData and rankData.ordem == tierIdx then
+                table.insert(eggs, obj)
+            end
+        end
+    end
+
+    table.sort(eggs, function(a, b) return a.Name < b.Name end)
+    return eggs, nil
+end
+
+local function iniciarAutoFarm(tierIdx)
+    if autoFarmRodando then
+        autoFarmRodando = false
+        task.wait(0.3)
+    end
+
+    autoFarmRodando = true
+
+    task.spawn(function()
+        while autoFarmRodando and autoFarmAtivo and filtroAtivo == tierIdx do
+            local eggs, err = pegarEggsDoTier(tierIdx)
+
+            if err then
+                setStatus(COR_STATUS_ERR, err)
+                task.wait(1.5)
+                autoFarmRodando = false
+                break
+            end
+
+            if #eggs == 0 then
+                setStatus(COR_STATUS_ERR, "Tier vazio")
+                task.wait(1.5)
+                autoFarmRodando = false
+                break
+            end
+
+            for i, egg in ipairs(eggs) do
+                if not autoFarmRodando or not autoFarmAtivo then break end
+                if filtroAtivo ~= tierIdx then break end
+                if not egg or not egg.Parent then continue end
+
+                CancelButton.Visible = true
+                setStatus(COR_STATUS_WORK, "Auto " .. i .. "/" .. #eggs .. ": " .. egg.Name)
+
+                local ok = fazerViagem(egg)
+
+                CancelButton.Visible = false
+
+                if not ok then
+                    autoFarmRodando = false
+                    break
+                end
+
+                task.wait(CONFIG.AutoFarmDelay)
+            end
+
+            task.wait(0.5)
+        end
+
+        autoFarmRodando = false
+        CancelButton.Visible = false
+        if autoFarmAtivo then
+            setStatus(COR_STATUS_OK, "Auto Farm parado")
+        else
+            setStatus(COR_STATUS_OK, "Pronto")
+        end
+    end)
+end
+
 local function criarBotoesTier()
     local btnTodos = Instance.new("TextButton")
     btnTodos.Size = UDim2.new(0, 26, 0, 12)
@@ -507,6 +830,7 @@ local function criarBotoesTier()
 
     btnTodos.MouseButton1Click:Connect(function()
         filtroAtivo = nil
+        autoFarmRodando = false
         atualizarSelecaoTier()
         popularLista()
     end)
@@ -537,11 +861,16 @@ local function criarBotoesTier()
         btn.MouseButton1Click:Connect(function()
             if filtroAtivo == i then
                 filtroAtivo = nil
+                autoFarmRodando = false
             else
                 filtroAtivo = i
             end
             atualizarSelecaoTier()
             popularLista()
+
+            if autoFarmAtivo and filtroAtivo == i then
+                iniciarAutoFarm(i)
+            end
         end)
         tierButtons[i] = btn
     end
@@ -631,7 +960,10 @@ function popularLista()
     selectedEgg = nil
 
     local pasta = Workspace:FindFirstChild(CONFIG.FolderName)
-    if not pasta then return end
+    if not pasta then
+        setStatus(COR_STATUS_ERR, "Pasta não encontrada")
+        return
+    end
 
     local modelsEncontrados = {}
     for _, obj in ipairs(pasta:GetChildren()) do
@@ -673,6 +1005,10 @@ function popularLista()
     for i, item in ipairs(listaFiltrada) do
         criarBotaoEgg(item.model, i, item.rank)
     end
+
+    if #listaFiltrada == 0 and filtroAtivo ~= nil then
+        setStatus(COR_STATUS_ERR, "Nenhum egg desse tier")
+    end
 end
 
 local function observarPasta()
@@ -683,215 +1019,67 @@ local function observarPasta()
     end
 end
 
-local function voarParaPosicao(destinoPos, distanciaParada)
-    flying = true
-    cancelarVoo = false
-    local conn
-    conn = RunService.Heartbeat:Connect(function(dt)
-        if cancelarVoo or not flying or not rootPart or not rootPart.Parent then
-            if conn then conn:Disconnect() end
-            return
-        end
-        local atual = rootPart.Position
-        local direcao = destinoPos - atual
-        local dist = direcao.Magnitude
-        if dist <= distanciaParada then
-            conn:Disconnect()
-            return
-        end
-        local passo = direcao.Unit * math.min(CONFIG.FlySpeed * dt, dist)
-        rootPart.CFrame = CFrame.new(atual + passo)
-    end)
-    repeat task.wait(0.03) until not conn.Connected
-end
-
-local function acharPromptMaisProximo(posicao, raioMax)
-    local maisProximo = nil
-    local menorDist = raioMax or math.huge
-
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") and obj.Enabled then
-            local base = obj.Parent
-            if base then
-                local pos = nil
-                if base:IsA("BasePart") then
-                    pos = base.Position
-                elseif base:IsA("Attachment") then
-                    pos = base.WorldPosition
-                end
-
-                if pos then
-                    local dist = (pos - posicao).Magnitude
-                    if dist < menorDist then
-                        menorDist = dist
-                        maisProximo = obj
-                    end
-                end
-            end
-        end
-    end
-
-    return maisProximo, menorDist
-end
-
-local function acionarPrompt(model, posicaoChegada)
-    local prompt = nil
-
-    if model then
-        prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
-    end
-
-    if not prompt and posicaoChegada then
-        local encontrado, dist = acharPromptMaisProximo(posicaoChegada, CONFIG.PromptSearchRadius)
-        if encontrado then
-            prompt = encontrado
-            print("[Egg Finder] Prompt encontrado fora do model. Dist: " .. math.floor(dist))
-        end
-    end
-
-    if not prompt then
-        print("[Egg Finder] Nenhum ProximityPrompt encontrado.")
-        return false
-    end
-
-    print("[Egg Finder] Acionando: " .. tostring(prompt.ActionText))
-
-    local ok = pcall(function() fireproximityprompt(prompt) end)
-    if not ok then
-        pcall(function()
-            prompt:InputHoldBegin()
-            task.wait(CONFIG.PromptHoldTime)
-            prompt:InputHoldEnd()
-        end)
-    end
-    task.wait(0.3)
-    return true
-end
-
-local function buscarEgg()
-    if flying then return end
-
-    if not selectedEgg or not selectedEgg.Parent then
-        setStatus(COR_STATUS_ERR, "Selecione um egg!")
-        SearchButton.Text = "⚠ Selecione!"
-        SearchButton.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
-        task.wait(1)
-        SearchButton.Text = "Buscar Egg"
-        SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
-        setStatus(COR_STATUS_OK, "Pronto")
-        return
-    end
-
-    character = player.Character
-    humanoid = character:WaitForChild("Humanoid")
-    rootPart = character:WaitForChild("HumanoidRootPart")
-
-    setStatus(COR_STATUS_WORK, "Voando...")
-    SearchButton.Text = "🛫 Voando..."
-    SearchButton.BackgroundColor3 = Color3.fromRGB(80, 180, 100)
-    CancelButton.Visible = true
-
-    local eggPos
-    if selectedEgg:IsA("Model") then
-        local primary = selectedEgg.PrimaryPart or selectedEgg:FindFirstChildWhichIsA("BasePart")
-        eggPos = primary and primary.Position or selectedEgg:GetPivot().Position
-    end
-
-    if not eggPos then
-        setStatus(COR_STATUS_ERR, "Erro: sem posição")
-        SearchButton.Text = "⚠ Sem posição!"
-        SearchButton.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
-        CancelButton.Visible = false
-        task.wait(1)
-        SearchButton.Text = "Buscar Egg"
-        SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
-        setStatus(COR_STATUS_OK, "Pronto")
-        return
-    end
-
-    oldStateSalvo = {
-        WalkSpeed = humanoid.WalkSpeed,
-        JumpPower = humanoid.JumpPower,
-        JumpHeight = humanoid.JumpHeight,
-        UseJumpPower = humanoid.UseJumpPower,
-        Anchored = rootPart.Anchored,
-        CanCollide = rootPart.CanCollide,
-        Gravity = Workspace.Gravity,
-        PlatformStand = humanoid.PlatformStand,
-        StartPos = rootPart.CFrame,
-    }
-
-    humanoid.PlatformStand = true
-    humanoid.WalkSpeed = 0
-    humanoid.JumpPower = 0
-    humanoid.JumpHeight = 0
-    Workspace.Gravity = 0
-    rootPart.Anchored = false
-    rootPart.CanCollide = false
-    ligarNoclip()
-
-    voarParaPosicao(eggPos, CONFIG.ArriveDistance)
-
-    if cancelarVoo then
-        restaurarEstado()
-        CancelButton.Visible = false
-        SearchButton.Text = "Buscar Egg"
-        SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
-        setStatus(COR_STATUS_ERR, "Cancelado")
-        task.wait(1)
-        setStatus(COR_STATUS_OK, "Pronto")
-        return
-    end
-
-    setStatus(COR_STATUS_WORK, "Interagindo...")
-    SearchButton.Text = "✋ Interagindo..."
-    acionarPrompt(selectedEgg, eggPos)
-
-    if cancelarVoo then
-        restaurarEstado()
-        CancelButton.Visible = false
-        SearchButton.Text = "Buscar Egg"
-        SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
-        setStatus(COR_STATUS_ERR, "Cancelado")
-        task.wait(1)
-        setStatus(COR_STATUS_OK, "Pronto")
-        return
-    end
-
-    setStatus(COR_STATUS_WORK, "Voltando...")
-    SearchButton.Text = "🛬 Voltando..."
-    voarParaPosicao(oldStateSalvo.StartPos.Position, 3)
-    flying = false
-    task.wait(0.15)
-
-    restaurarEstado()
-    CancelButton.Visible = false
-
-    setStatus(COR_STATUS_OK, "Feito!")
-    SearchButton.Text = "✅ Feito!"
-    SearchButton.BackgroundColor3 = Color3.fromRGB(80, 180, 100)
-    task.wait(1)
-    SearchButton.Text = "Buscar Egg"
-    SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
-    setStatus(COR_STATUS_OK, "Pronto")
-end
-
 local function cancelarVooAgora()
-    if not flying then return end
+    if not flying and not autoFarmRodando then return end
+
     cancelarVoo = true
-    flying = false
+    autoFarmRodando = false
+    autoFarmAtivo = false
+
+    CheckMark.TextTransparency = 1
+    CheckBox.BackgroundColor3 = Color3.fromRGB(40, 40, 52)
+    CheckLabel.TextColor3 = Color3.fromRGB(200, 200, 210)
+
     setStatus(COR_STATUS_ERR, "Cancelando...")
     CancelButton.Text = "Cancelando..."
+
     task.wait(0.15)
-    restaurarEstado()
+
+    if oldStateSalvo then
+        restaurarEstado()
+    end
+
     CancelButton.Visible = false
     CancelButton.Text = "Cancelar Voo"
-    SearchButton.Text = "Buscar Egg"
-    SearchButton.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
     setStatus(COR_STATUS_ERR, "Cancelado")
     task.wait(0.8)
     setStatus(COR_STATUS_OK, "Pronto")
 end
+
+AutoFarmCheck.MouseButton1Click:Connect(function()
+    autoFarmAtivo = not autoFarmAtivo
+
+    if autoFarmAtivo then
+        CheckMark.TextTransparency = 0
+        CheckBox.BackgroundColor3 = Color3.fromRGB(60, 130, 220)
+        CheckLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+        if filtroAtivo ~= nil then
+            iniciarAutoFarm(filtroAtivo)
+        else
+            setStatus(COR_STATUS_WORK, "Selecione um tier")
+        end
+    else
+        CheckMark.TextTransparency = 1
+        CheckBox.BackgroundColor3 = Color3.fromRGB(40, 40, 52)
+        CheckLabel.TextColor3 = Color3.fromRGB(200, 200, 210)
+        autoFarmRodando = false
+        if flying then
+            cancelarVoo = true
+        end
+    end
+end)
+
+AutoFarmCheck.MouseEnter:Connect(function()
+    TweenService:Create(AutoFarmCheck, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(38, 38, 48)
+    }):Play()
+end)
+AutoFarmCheck.MouseLeave:Connect(function()
+    TweenService:Create(AutoFarmCheck, TweenInfo.new(0.1), {
+        BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+    }):Play()
+end)
 
 SearchButton.MouseButton1Click:Connect(buscarEgg)
 CancelButton.MouseButton1Click:Connect(cancelarVooAgora)
@@ -933,9 +1121,10 @@ CancelButton.MouseLeave:Connect(function()
 end)
 
 local function fecharComAnimacao()
+    autoFarmRodando = false
+    autoFarmAtivo = false
     if flying then
         cancelarVoo = true
-        flying = false
         task.wait(0.1)
         restaurarEstado()
     end
